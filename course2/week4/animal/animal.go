@@ -1,117 +1,107 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
+
+type AnimalType struct {
+	name string
+}
+type Cow AnimalType
+type Bird AnimalType
+type Snake AnimalType
 
 type Animal interface {
+	Speak()
 	Move()
 	Eat()
-	Speak()
-	GetName() string
 }
 
-type Cow struct {
-	name string
-}
-
-func (c Cow) Eat() {
-	fmt.Println("grass")
-}
-
-func (c Cow) Move() {
-	fmt.Println("walk")
-}
-
-func (c Cow) Speak() {
-	fmt.Println("moo")
-}
-
-func (c Cow) GetName() string {
-	return c.name
-}
-
-type Bird struct {
-	name string
-}
-
-func (b Bird) Eat() {
-	fmt.Println("worms")
-}
-
-func (b Bird) Move() {
-	fmt.Println("fly")
-}
-
-func (b Bird) Speak() {
-	fmt.Println("peep")
-}
-
-func (b Bird) GetName() string {
-	return b.name
-}
-
-type Snake struct {
-	name string
-}
-
-func (s Snake) Eat() {
-	fmt.Println("mice")
-}
-
-func (s Snake) Move() {
-	fmt.Println("slither")
-}
-
-func (s Snake) Speak() {
+/* Implement all the Interface methods for each type of animal */
+func (a Snake) Speak() {
 	fmt.Println("hsss")
 }
 
-func (s Snake) GetName() string {
-	return s.name
+func (a Snake) Move() {
+	fmt.Println("slither")
+}
+
+func (a Snake) Eat() {
+	fmt.Println("mice")
+}
+
+func (a Bird) Speak() {
+	fmt.Println("peep")
+}
+
+func (a Bird) Move() {
+	fmt.Println("fly")
+}
+
+func (a Bird) Eat() {
+	fmt.Println("worms")
+}
+
+func (a Cow) Speak() {
+	fmt.Println("moo")
+}
+
+func (a Cow) Move() {
+	fmt.Println("walk")
+}
+
+func (a Cow) Eat() {
+	fmt.Println("grass")
+}
+
+func createAnimal(typeAnimal string, name string) (Animal, string) {
+	switch strings.ToLower(typeAnimal) {
+	case "cow":
+		return Cow{name: name}, ""
+	case "snake":
+		return Snake{name: name}, ""
+	case "bird":
+		return Bird{name: name}, ""
+	}
+	return nil, "error"
 }
 
 func main() {
+	const (
+		query     = "query"
+		newanimal = "newanimal"
+	)
+	var nameType, typeAction, command string
 
-	var animals []Animal
-	for {
-		var commandOne string
-		var param1, param2, param3 string
-		fmt.Print(">")
-		fmt.Scanf("%s", &commandOne)
-		if commandOne == "newanimal" {
-			fmt.Scanf("%s %s %s", &param1, &param2, &param3)
-			fmt.Println(param3)
-			switch param3 {
-			case "cow":
-				var cow Cow
-				cow.name = param2
-				animals = append(animals, cow)
-			case "snake":
-				var snake Snake
-				snake.name = param2
-				animals = append(animals, snake)
-			case "bird":
-				var bird Bird
-				bird.name = param2
-				animals = append(animals, bird)
-			}
-			fmt.Println(animals)
-			fmt.Println("Created it!")
-		} else {
-			fmt.Scanf("%s %s %s", &param1, &param2, &param3)
-			for _, animal := range animals {
-				if animal.GetName() == param2 {
-					switch param3 {
-					case "eat":
-						animal.Eat()
-					case "speak":
-						animal.Speak()
-					case "move":
-						animal.Move()
-					}
-					break
+	var animalMap = make(map[string]Animal)
+
+	for true {
+		fmt.Println("cmd name atype>")
+		fmt.Print("> ")
+		fmt.Scanf("%s %s %s", &command, &nameType, &typeAction)
+		if command == query {
+			if val, ok := animalMap[nameType]; ok {
+				switch strings.ToLower(typeAction) {
+				case "eat":
+					val.Eat()
+				case "move":
+					val.Move()
+				case "speak":
+					val.Speak()
 				}
+				continue
 			}
+			fmt.Println("Please type an existing animal: ", animalMap)
+		} else if command == newanimal {
+			animal, err := createAnimal(typeAction, nameType)
+			if animal != nil {
+				animalMap[nameType] = animal
+				fmt.Println("Created!")
+				continue
+			}
+			fmt.Println(err)
+
 		}
 	}
-
 }
